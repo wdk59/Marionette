@@ -18,11 +18,6 @@ public class PoseDetector : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
     private void SetPoseState(string poseName)
     {
         nowPoseName = poseName;
