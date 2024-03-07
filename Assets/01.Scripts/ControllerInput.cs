@@ -5,66 +5,132 @@ using UnityEngine;
 public class ControllerInput : MonoBehaviour
 {
 
+    [SerializeField] private PoseDetector poseDetector;
+    [SerializeField] private string nowPoseName = "Idle";
+
     public int speedForward = 12;
-    public int speedSide = 6;
 
     private Transform tr;
-    private float dirX = 0;
     private float dirZ = 0;
-    private float dirY = 0;
     private float rotY = 0;
 
     // Start is called before the first frame update
     void Start()
     {
         tr = GetComponent<Transform>();
+        this.nowPoseName = poseDetector.gameObject.GetComponent<PoseDetector>().nowPoseName;
     }
 
     // Update is called once per frame
     void Update()
     {
-        MovePlayer();
-        RotateHead();
+        switch(nowPoseName)
+        {
+            case "Forward":
+                Debug.Log("Forward");
+                MovePlayer(1);
+                break;
+
+            case "Bunny":
+                Debug.Log("Test");
+                MovePlayer(1);
+                break;
+
+            case "Backward":
+                Debug.Log("Backward");
+                MovePlayer(-1);
+                break;
+
+            case "LeftTurn":
+                Debug.Log("LeftTurn");
+                RotateHead(-1);
+                break;
+
+            case "RightTurn":
+                Debug.Log("RightTurn");
+                RotateHead(1);
+                break;
+
+            case "Jump":
+                Debug.Log("Jump");
+                Jump();
+                break;
+
+            case "LeftForward":
+                Debug.Log("LeftForward");
+                MovePlayer(1);
+                RotateHead(-1);
+                break;
+
+            case "RightForward":
+                Debug.Log("RightForward");
+                MovePlayer(1);
+                RotateHead(1);
+                break;
+
+            case "LeftBackward":
+                Debug.Log("LeftBackward");
+                MovePlayer(-1);
+                RotateHead(-1);
+                break;
+
+            case "RightBackward":
+                Debug.Log("RightBackward");
+                MovePlayer(-1);
+                RotateHead(1);
+                break;
+
+            case "JumpForward":
+                Debug.Log("JumpForward");
+                MovePlayer(1);
+                Jump();
+                break;
+
+            case "JumpBackorward":
+                Debug.Log("JumpBackorward");
+                MovePlayer(-1);
+                Jump();
+                break;
+
+            case "DashSkill":
+                Debug.Log("DashSkill");
+                Dash();
+                break;
+
+            default:
+                Debug.Log("Idle");
+                nowPoseName = "Idle";
+                break;
+        }
     }
 
-    void MovePlayer()
+    void MovePlayer(int toward)
     {
-        dirX = 0;
-        dirZ = 0;
+        Debug.Log("Move " + toward);
 
-        Vector2 coord = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
+        dirZ = toward;  // Forward or Backward
 
-        var absX = Mathf.Abs(coord.x);
-        var absY = Mathf.Abs(coord.y);
-
-        if (absX > absY)
-        {
-            if (coord.x > 0) dirX = +1;
-            else dirX = -1;
-        }
-        else
-        {
-            if (coord.y > 0) dirZ = +1;
-            else dirZ = -1;
-        }
-
-        Vector3 moveDir = new Vector3(dirX * speedSide, 0, dirZ * speedForward);
+        Vector3 moveDir = new Vector3(0, 0, dirZ * speedForward);
 
         transform.Translate(moveDir * Time.smoothDeltaTime);
     }
 
-    void RotateHead()
+    void RotateHead(int side)
     {
-        rotY = 0;
+        Debug.Log("Rotate " + side);
 
-        Vector2 coord = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick);
-        rotY = coord.x;
+        rotY = side;    // Left or Right
 
         transform.Rotate(0, rotY, 0, Space.Self);
     }
 
     void Jump()
     {
+        Debug.Log("Jump()");
+    }
 
+    void Dash()
+    {
+        Debug.Log("Dash()");
     }
 }
