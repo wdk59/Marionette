@@ -8,7 +8,7 @@ public class ControllerInput : MonoBehaviour
     [SerializeField] private PoseDetector poseDetector;
     [SerializeField] private string nowPoseName = "Idle";
 
-    public int speedForward = 12;
+    public int speedForward = 5;
 
     private Transform tr;
     private float dirZ = 0;
@@ -18,13 +18,20 @@ public class ControllerInput : MonoBehaviour
     void Start()
     {
         tr = GetComponent<Transform>();
-        this.nowPoseName = poseDetector.gameObject.GetComponent<PoseDetector>().nowPoseName;
     }
 
     // Update is called once per frame
     void Update()
     {
-        switch(nowPoseName)
+        this.nowPoseName = poseDetector.gameObject.GetComponent<PoseDetector>().nowPoseName;
+
+        if (this.nowPoseName == "Forward")
+        {
+            Debug.Log("if forward");
+            MovePlayer(1);
+        }
+
+        switch(this.nowPoseName)
         {
             case "Forward":
                 Debug.Log("Forward");
@@ -58,26 +65,26 @@ public class ControllerInput : MonoBehaviour
 
             case "LeftForward":
                 Debug.Log("LeftForward");
-                MovePlayer(1);
                 RotateHead(-1);
+                MovePlayer(1);
                 break;
 
             case "RightForward":
                 Debug.Log("RightForward");
-                MovePlayer(1);
                 RotateHead(1);
+                MovePlayer(1);
                 break;
 
             case "LeftBackward":
                 Debug.Log("LeftBackward");
-                MovePlayer(-1);
                 RotateHead(-1);
+                MovePlayer(-1);
                 break;
 
             case "RightBackward":
                 Debug.Log("RightBackward");
-                MovePlayer(-1);
                 RotateHead(1);
+                MovePlayer(-1);
                 break;
 
             case "JumpForward":
