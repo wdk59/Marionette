@@ -3,29 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-[System.Serializable]
-public struct Pose
-{
-    public string name;
-    public List<Vector3> fingerDatas;
-    public UnityEvent onRecongnized;
-}
-
 public class T2_PoseDetector : MonoBehaviour
 {
     public bool debugMode = true;
 
-    public float threshold = 0.05f;      // Æ÷Áî À¯»çµµ ÇÑ°èÁ¡
+    public float threshold = 0.05f;      // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½çµµ ï¿½Ñ°ï¿½ï¿½ï¿½
     public OVRSkeleton skeleton;
     public List<Pose> poses;
     private List<OVRBone> fingerBones;
     private Pose previousPose;
+    [SerializeField] private Pose currentPose;
+
+    bool isChanging;
+    private float timer = 0f;
 
     // Start is called before the first frame update
     void Start()
     {
         fingerBones = new List<OVRBone>(skeleton.Bones);
         previousPose = new Pose();
+        currentPose = new Pose();
+
+        isChanging = false;
     }
 
     // Update is called once per frame
@@ -36,16 +35,52 @@ public class T2_PoseDetector : MonoBehaviour
             SavePose();
         }
 
-        Pose currentPose = Recognize();
-        bool hasRecognized = !currentPose.Equals(new Pose());
-        // Check if new pose
-        if (hasRecognized && !currentPose.Equals(previousPose))
+        if (debugMode && Input.GetKeyDown(KeyCode.R))
+        {
+            Debug.Log("Ready");
+        }
+
+        /*
+        // Test1. Check for 1 Pose (Press A Key when start to measure the performance time)
+        if (debugMode && Input.GetKeyDown(KeyCode.A))
+        {
+            currentPose = Recognize();
+
+            bool hasRecognized = !currentPose.Equals(new T2_Pose());   // true: currentPose is not a blank Pose structor
+            if (hasRecognized && !currentPose.Equals(T2_Pose)) // Check if new pose
+            {
+                // New pose
+                previousPose = currentPose;
+                currentPose.onRecongnized.Invoke();
+            }
+        }
+        */
+
+
+        // Test2. Check Time when the Pose is Changing
+        currentPose = Recognize();
+        Debug.Log("nowPose: " + currentPose.name);
+
+        // previous: Has Pose, current: NULL
+        if (!previousPose.Equals(new Pose()) && currentPose.Equals(new Pose())) {
+            timer = Time.realtimeSinceStartup;
+            isChanging = true;
+        }
+
+        bool hasRecognized = !currentPose.Equals(new Pose());   // true: currentPose is not a blank Pose structor
+        if (isChanging && hasRecognized)
+        {
+            isChanging = false;
+        }
+        
+        if (hasRecognized && !currentPose.Equals(previousPose)) // Check if new pose
         {
             // New pose
             Debug.Log("New Pose Found: " + currentPose.name);
             previousPose = currentPose;
             currentPose.onRecongnized.Invoke();
         }
+        
     }
 
     void SavePose()
@@ -79,7 +114,7 @@ public class T2_PoseDetector : MonoBehaviour
             for (int i = 0; i < fingerBones.Count; i++)
             {
                 Vector3 currentData = skeleton.transform.InverseTransformPoint(fingerBones[i].Transform.position);
-                float distance = Vector3.Distance(currentData, pose.fingerDatas[i]);    // º¤ÅÍ °£ °Å¸®¸¦ ÅëÇØ À¯»çµµ ÃøÁ¤
+                float distance = Vector3.Distance(currentData, pose.fingerDatas[i]);    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Å¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½çµµ ï¿½ï¿½ï¿½ï¿½
                 if (distance > threshold)
                 {
                     isDiscarded = true;
