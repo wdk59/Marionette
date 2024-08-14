@@ -8,6 +8,8 @@ public struct Pose
 {
     public string name;
     public List<Vector3> fingerDatas;
+    public bool isPalmUp;
+
     public UnityEvent onRecongnized;
 }
 
@@ -16,138 +18,275 @@ public class PoseDetector : MonoBehaviour
     public bool debugMode = true;
 
     public float threshold = 0.05f;      // ���� ���絵 �Ѱ���
-    public OVRSkeleton skeleton;
-    public List<Pose> poses;
+    public OVRSkeleton skeleton_L;
+    public OVRSkeleton skeleton_R;
+
+    public List<Pose> poses_L;
+    public List<Pose> poses_R;
+
     private List<OVRBone> fingerBones;
-    private Pose previousPose;
-    [SerializeField] private Pose currentPose;
 
-    [SerializeField] bool isPalmUp = false;
-    [SerializeField] private GameObject handVisual; 
+    //private Pose previousPose_L;
+    //private Pose previousPose_R;
 
-    bool isChanging;
-    private float timer = 0f;
+    [SerializeField] private Pose currentPose_L;
+    [SerializeField] private Pose currentPose_R;
 
-    public TMPro.TextMeshPro text;
+    [SerializeField] bool isPalmUp_L = false;
+    [SerializeField] bool isPalmUp_R = false;
+    
+    [SerializeField] private GameObject handVisual_L;
+    [SerializeField] private GameObject handVisual_R;
+
+    //bool isChanging_L;
+    //bool isChanging_R;
+
+    public TMPro.TextMeshPro PoseName_L;
+    public TMPro.TextMeshPro PoseName_R;
 
     // Start is called before the first frame update
     void Start()
     {
-        fingerBones = new List<OVRBone>(skeleton.Bones);
-        previousPose = new Pose();
-        currentPose = new Pose();
+        //fingerBones_L = new List<OVRBone>(skeleton_L.Bones);
+        fingerBones = null;
 
-        isChanging = false;
+        //previousPose_L = new Pose();
+        //previousPose_R = new Pose();
+        currentPose_L = new Pose();
+        currentPose_R = new Pose();
+
+        //isChanging_L = false;
+        //isChanging_R = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        // print name
-        SetPoseState(currentPose.name);
-        Debug.Log("currentPose: " + currentPose.name);
+        // Print Pose Name
+        SetPoseState(currentPose_L.name, currentPose_R.name);
+        Debug.Log("Left CurrentPose: " + currentPose_L.name);
+        Debug.Log("Right CurrentPose: " + currentPose_R.name);
 
-        if (handVisual.transform.rotation.x >= -0.45 && handVisual.transform.rotation.x <= 0.45)
+        // Palm Face
+        if (handVisual_L.transform.rotation.x >= -0.45 && handVisual_L.transform.rotation.x <= 0.45)
         {
-            isPalmUp = true;
-            Debug.Log("up: " + handVisual.transform.rotation.x);
+            isPalmUp_L = true;
+            Debug.Log("up: " + handVisual_L.transform.rotation.x);
         } else
         {
-            isPalmUp = false;
-            Debug.Log("down: " + handVisual.transform.rotation.x);
+            isPalmUp_L = false;
+            Debug.Log("down: " + handVisual_L.transform.rotation.x);
         }
-
-        // input
-        if (debugMode && Input.GetKeyDown(KeyCode.Space))
+        if (handVisual_R.transform.rotation.x >= -0.45 && handVisual_R.transform.rotation.x <= 0.45)
         {
-            SavePose();
+            isPalmUp_R = true;
+            Debug.Log("up: " + handVisual_R.transform.rotation.x);
+        }
+        else
+        {
+            isPalmUp_R = false;
+            Debug.Log("down: " + handVisual_R.transform.rotation.x);
         }
 
+        // Debug Mode - Save Left Hand Poses
+        if (debugMode && Input.GetKeyDown(KeyCode.J))
+        {
+            SavePose('L');
+        }
+        // Debug Mode - Save Left Hand Poses
+        if (debugMode && Input.GetKeyDown(KeyCode.K))
+        {
+            SavePose('R');
+        }
         if (debugMode && Input.GetKeyDown(KeyCode.R))
         {
             Debug.Log("Ready");
         }
 
-        currentPose = Recognize();
+        currentPose_L = Recognize('L');
+        currentPose_R = Recognize('R');
 
+        /*
         // previous: Has Pose, current: NULL
-        if (!previousPose.Equals(new Pose()) && currentPose.Equals(new Pose()))
+        if (!previousPose_L.Equals(new Pose()) && currentPose_L.Equals(new Pose()))
         {
-            timer = Time.realtimeSinceStartup;
-            isChanging = true;
+            isChanging_L = true;
+        }
+        if (!previousPose_R.Equals(new Pose()) && currentPose_R.Equals(new Pose()))
+        {
+            isChanging_R = true;
         }
 
-        bool hasRecognized = !currentPose.Equals(new Pose());   // true: currentPose is not a blank Pose structor
-        if (isChanging && hasRecognized)
+        bool hasRecognized = !currentPose_L.Equals(new Pose());     // true: currentPose is not a blank Pose structor
+        if (isChanging_L && hasRecognized)
         {
-            isChanging = false;
+            isChanging_L = false;
         }
-
-        if (hasRecognized && !currentPose.Equals(previousPose)) // Check if new pose
+        if (hasRecognized && !currentPose_L.Equals(previousPose_L)) // Check if new pose
         {
             // New pose
             //Debug.Log("New Pose Found: " + currentPose.name);
-            previousPose = currentPose;
+            previousPose_L = currentPose_L;
             //currentPose.onRecongnized.Invoke();
         }
 
+        hasRecognized = !currentPose_R.Equals(new Pose());          // true: currentPose is not a blank Pose structor
+        if (isChanging_R && hasRecognized)
+        {
+            isChanging_R = false;
+        }
+        if (hasRecognized && !currentPose_R.Equals(previousPose_R)) // Check if new pose
+        {
+            // New pose
+            //Debug.Log("New Pose Found: " + currentPose.name);
+            previousPose_R = currentPose_R;
+            //currentPose.onRecongnized.Invoke();
+        }
+        */
     }
 
     public string currentPoseName()
     {
-        return currentPose.name;
+        string currentPoseName = null;
+
+        if (!currentPose_L.Equals(new Pose()) && currentPose_R.Equals(new Pose()))
+        {
+            // Only Left Hand has Pose
+            currentPoseName = currentPose_L.name;
+        } else if (currentPose_L.Equals(new Pose()) && !currentPose_R.Equals(new Pose()))
+        {
+            // Only Right Hand has Pose
+            currentPoseName = currentPose_R.name;
+        } else if (!currentPose_L.Equals(new Pose()) && !currentPose_R.Equals(new Pose()))
+        {
+            // Both of Hands have Pose for each
+        }
+
+        return currentPoseName;
     }
 
-    void SavePose()
+    void SavePose(int LorR)
     {
-        fingerBones = new List<OVRBone>(skeleton.Bones);
-
         Pose newPose = new Pose();
         newPose.name = "New Gesture";
         List<Vector3> data = new List<Vector3>();
 
-        foreach (var bone in fingerBones)
+        if (LorR == 'L')
         {
-            // finger position relative to root
-            data.Add(skeleton.transform.InverseTransformPoint(bone.Transform.position));
+            fingerBones = new List<OVRBone>(skeleton_L.Bones);
+
+            foreach (var bone in fingerBones)
+            {
+                // finger position relative to root
+                data.Add(skeleton_L.transform.InverseTransformPoint(bone.Transform.position));
+            }
+
+            newPose.fingerDatas = data;
+            newPose.isPalmUp = isPalmUp_L;
+
+            poses_L.Add(newPose);
+        } else if (LorR == 'R')
+        {
+            fingerBones = new List<OVRBone>(skeleton_R.Bones);
+
+
+            foreach (var bone in fingerBones)
+            {
+                // finger position relative to root
+                data.Add(skeleton_R.transform.InverseTransformPoint(bone.Transform.position));
+            }
+
+            newPose.fingerDatas = data;
+            newPose.isPalmUp = isPalmUp_R;
+
+            poses_R.Add(newPose);
         }
-
-        newPose.fingerDatas = data;
-        poses.Add(newPose);
     }
-    private void SetPoseState(string poseName)
+    private void SetPoseState(string poseName_L, string poseName_R)
     {
-        text.text = "Pose Name:" + poseName;
+        PoseName_L.text = "Left Pose Name:\n" + poseName_L;
+        PoseName_R.text = "Right Pose Name:\n" + poseName_R;
+        if (poseName_L == null)
+        {
+            PoseName_L.text = "Left Pose Name:\nIdle";
+        }
+        if (poseName_R == null)
+        {
+            PoseName_R.text = "Right Pose Name:\nIdle";
+        }
     }
 
-    Pose Recognize()
+    Pose Recognize(int LorR)
     {
-        fingerBones = new List<OVRBone>(skeleton.Bones);
         Pose currentPose = new Pose();
         float currentMin = Mathf.Infinity;
 
-        foreach (var pose in poses)
+        if (LorR == 'L')
         {
-            float sumDistance = 0;
-            bool isDiscarded = false;
-            for (int i = 0; i < fingerBones.Count; i++)
+            fingerBones = new List<OVRBone>(skeleton_L.Bones);
+
+            foreach (var pose in poses_L)
             {
-                Vector3 currentData = skeleton.transform.InverseTransformPoint(fingerBones[i].Transform.position);
-                float distance = Vector3.Distance(currentData, pose.fingerDatas[i]);    // ���� �� �Ÿ��� ���� ���絵 ����
-                //Debug.Log("i: " + i + " / distance: " + distance);
-                if (distance > threshold)
+                float sumDistance = 0;
+                bool isDiscarded = false;
+
+                // Check Shape of Hand based on FingerBones
+                for (int i = 0; i < fingerBones.Count; i++)
                 {
-                    isDiscarded = true;
-                    //Debug.Log("discarded");
-                    break;
+                    Vector3 currentData = skeleton_L.transform.InverseTransformPoint(fingerBones[i].Transform.position);
+                    float distance = Vector3.Distance(currentData, pose.fingerDatas[i]);    // ���� �� �Ÿ��� ���� ���絵 ����
+                    //Debug.Log("i: " + i + " / distance: " + distance);
+                    
+                    if (distance > threshold)
+                    {
+                        isDiscarded = true;
+                        //Debug.Log("discarded");
+                        break;
+                    }
+                    sumDistance += distance;
                 }
-                sumDistance += distance;
+                //Debug.Log("sumDistance: " + sumDistance);
+
+                // Determine the Pose of Hand based on Shape and Palm Direction
+                if (!isDiscarded && sumDistance < currentMin && isPalmUp_L == pose.isPalmUp)
+                {
+                    currentMin = sumDistance;
+                    currentPose = pose;
+                }
             }
-            //Debug.Log("sumDistance: " + sumDistance);
-            if (!isDiscarded && sumDistance < currentMin)
+
+        } else if (LorR == 'R')
+        {
+            fingerBones = new List<OVRBone>(skeleton_R.Bones);
+
+            foreach (var pose in poses_R)
             {
-                currentMin = sumDistance;
-                currentPose = pose;
+                float sumDistance = 0;
+                bool isDiscarded = false;
+
+                // Check Shape of Hand based on FingerBones
+                for (int i = 0; i < fingerBones.Count; i++)
+                {
+                    Vector3 currentData = skeleton_R.transform.InverseTransformPoint(fingerBones[i].Transform.position);
+                    float distance = Vector3.Distance(currentData, pose.fingerDatas[i]);    // ���� �� �Ÿ��� ���� ���絵 ����
+                    //Debug.Log("i: " + i + " / distance: " + distance);
+
+                    if (distance > threshold)
+                    {
+                        isDiscarded = true;
+                        //Debug.Log("discarded");
+                        break;
+                    }
+                    sumDistance += distance;
+                }
+                //Debug.Log("sumDistance: " + sumDistance);
+
+                // Determine the Pose of Hand based on Shape and Palm Direction
+                if (!isDiscarded && sumDistance < currentMin && isPalmUp_R == pose.isPalmUp)
+                {
+                    currentMin = sumDistance;
+                    currentPose = pose;
+                }
             }
         }
 

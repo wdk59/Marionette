@@ -9,36 +9,82 @@ public class ControllerInput : MonoBehaviour
     [SerializeField] private GameObject poseDetector;
     [SerializeField] private string nowPoseName = "Idle";
 
-    public int speedForward = 5;
+    public int speedForward = 2;
 
     private Transform trans;
     private Rigidbody rigid;
-    private float dirZ = 0;
-    private float rotY = 0;
+    private float dirZ = 0f;
+    private float rotY = 0f;
 
-    // jump
+    // Jump
     private float jumpForce = 5f;
     public LayerMask groundLayer;
-    public float groundCheckDistance = 0.1f;
-    private bool isGrounded;
+    public float groundCheckDistance = 10f;
+    private bool isGrounded = true;
+
+    // Dash
+    [SerializeField] private bool canDash;
+    [SerializeField] private float dashCoolTime = 0f;
+    public int dashSpeed = 5;
+    public float dashJumpForce = 0.2f;
 
     // Start is called before the first frame update
     void Start()
     {
         trans = GetComponent<Transform>();
         rigid = GetComponent<Rigidbody>();
+
+        speedForward = 2;
+
+        dirZ = 0f;
+        rotY = 0f;
+
+        jumpForce = 5f;
+        groundCheckDistance = 10f;
+
+        canDash = true;
+        dashCoolTime = 0f;
+        dashSpeed = 5;
+        dashJumpForce = 0.2f;
     }
 
     // Update is called once per frame
     void Update()
     {
-        this.nowPoseName = poseDetector.gameObject.GetComponent<PoseDetector>().currentPoseName();
+        // Debug Code --------------------------------------------------
+
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            Vector3 jumpVelocity = Vector3.up * Mathf.Sqrt(jumpForce * -Physics.gravity.y);
+
+            rigid.AddForce(jumpVelocity, ForceMode.Impulse);
+        }
+
+        if (Input.GetKey(KeyCode.W))
+        {
+            MovePlayer(1);
+        }
+        if (Input.GetKeyUp(KeyCode.W))
+        {
+            MovePlayer(0);
+        }
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            Dash(1);
+        }
 
         if (this.nowPoseName == "Forward")
         {
             Debug.Log("if forward");
             MovePlayer(1);
         }
+
+        // Real Code --------------------------------------------------
+
+        GroundCheck();
+
+        this.nowPoseName = poseDetector.gameObject.GetComponent<PoseDetector>().currentPoseName();
 
         switch(this.nowPoseName)
         {
@@ -64,11 +110,7 @@ public class ControllerInput : MonoBehaviour
 
             case "Jump":
                 Debug.Log("Jump");
-                isGrounded = Physics.Raycast(transform.position, Vector3.down, groundCheckDistance, groundLayer);
-                if (isGrounded)
-                {
-                    Jump();
-                }
+                Jump();
                 break;
 
             case "LeftForward":
@@ -107,9 +149,9 @@ public class ControllerInput : MonoBehaviour
                 Jump();
                 break;
 
-            case "DashSkill":
+            case "ForwardDashSkill":
                 Debug.Log("DashSkill");
-                Dash();
+                Dash(1);
                 break;
 
             default:
@@ -128,6 +170,7 @@ public class ControllerInput : MonoBehaviour
         Vector3 moveDir = new Vector3(0, 0, dirZ * speedForward);
 
         transform.Translate(moveDir * Time.smoothDeltaTime);
+        //rigid.velocity = moveDir;
     }
 
     void RotateHead(int side)
@@ -139,15 +182,63 @@ public class ControllerInput : MonoBehaviour
         transform.Rotate(0, rotY, 0, Space.Self);
     }
 
+    void GroundCheck()
+    {
+        RaycastHit hit;
+        Debug.DrawRay(transform.position, Vector3.down, Color.red);
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 1.0f))
+        {
+            //Debug.Log("ray tag: " + hit.transform.tag);
+            if (hit.transform.tag != null)
+            {
+                isGrounded = true;
+                //Debug.Log("ray: ground true");
+            }
+        }
+        else
+        {
+            isGrounded = false;
+            //Debug.Log("ray: ground false");
+        }
+    }
     void Jump()
     {
         Debug.Log("Jump()");
 
-        rigid.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        if (isGrounded)
+        {
+            Vector3 jumpVelocity = Vector3.up * Mathf.Sqrt(jumpForce * -Physics.gravity.y);
+
+            rigid.AddForce(jumpVelocity, ForceMode.Impulse);
+        }
     }
 
-    void Dash()
+    void Dash(int toward)
     {
         Debug.Log("Dash()");
+
+        if (canDash)
+        {
+            canDash = false;
+            Vector3 jumpVelocity = Vector3.up * Mathf.Sqrt(dashJumpForce * -Physics.gravity.y);
+            Vector3 moveDir = new Vector3(0, 0, toward * dashSpeed);
+            jumpVelocity += moveDir;
+
+            rigid.AddForce(jumpVelocity, ForceMode.Impulse);
+            StartCoroutine("DashCoolTimer");
+        }
+    }
+    IEnumerator DashCoolTimer()
+    {
+        float maxCoolTime = 3.0f;
+        dashCoolTime = 0.0f;
+        while (dashCoolTime < maxCoolTime)
+        {
+            dashCoolTime += Time.deltaTime;
+
+            yield return new WaitForFixedUpdate();
+        }
+
+        canDash = true;
     }
 }
