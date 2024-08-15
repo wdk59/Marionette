@@ -79,12 +79,12 @@ public class PoseDetector : MonoBehaviour
         }
         if (handVisual_R.transform.rotation.x >= -0.45 && handVisual_R.transform.rotation.x <= 0.45)
         {
-            isPalmUp_R = true;
+            isPalmUp_R = false;
             Debug.Log("up: " + handVisual_R.transform.rotation.x);
         }
         else
         {
-            isPalmUp_R = false;
+            isPalmUp_R = true;
             Debug.Log("down: " + handVisual_R.transform.rotation.x);
         }
 
@@ -145,24 +145,13 @@ public class PoseDetector : MonoBehaviour
         */
     }
 
-    public string currentPoseName()
+    public string currentLeftPoseName()
     {
-        string currentPoseName = null;
-
-        if (!currentPose_L.Equals(new Pose()) && currentPose_R.Equals(new Pose()))
-        {
-            // Only Left Hand has Pose
-            currentPoseName = currentPose_L.name;
-        } else if (currentPose_L.Equals(new Pose()) && !currentPose_R.Equals(new Pose()))
-        {
-            // Only Right Hand has Pose
-            currentPoseName = currentPose_R.name;
-        } else if (!currentPose_L.Equals(new Pose()) && !currentPose_R.Equals(new Pose()))
-        {
-            // Both of Hands have Pose for each
-        }
-
-        return currentPoseName;
+        return currentPose_L.name;
+    }
+    public string currentRightPoseName()
+    {
+        return currentPose_R.name;
     }
 
     void SavePose(int LorR)
@@ -204,21 +193,22 @@ public class PoseDetector : MonoBehaviour
     }
     private void SetPoseState(string poseName_L, string poseName_R)
     {
-        PoseName_L.text = "Left Pose Name:\n" + poseName_L;
-        PoseName_R.text = "Right Pose Name:\n" + poseName_R;
+        PoseName_L.text = "Left Pose Name: " + poseName_L;
+        PoseName_R.text = "Right Pose Name: " + poseName_R;
         if (poseName_L == null)
         {
-            PoseName_L.text = "Left Pose Name:\nIdle";
+            PoseName_L.text = "Left Pose Name: Idle";
         }
         if (poseName_R == null)
         {
-            PoseName_R.text = "Right Pose Name:\nIdle";
+            PoseName_R.text = "Right Pose Name: Idle";
         }
     }
 
     Pose Recognize(int LorR)
     {
         Pose currentPose = new Pose();
+        currentPose.name = "Idle";
         float currentMin = Mathf.Infinity;
 
         if (LorR == 'L')

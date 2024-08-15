@@ -7,7 +7,15 @@ public class ControllerInput : MonoBehaviour
 
     //[SerializeField] private PoseDetector poseDetector;
     [SerializeField] private GameObject poseDetector;
-    [SerializeField] private string nowPoseName = "Idle";
+    //[SerializeField] private string nowPoseName = "Idle";
+
+    [System.Serializable]
+    public struct PoseName
+    {
+        public string left;
+        public string right;
+    }
+    private PoseName nowPoseName;
 
     public int speedForward = 2;
 
@@ -33,6 +41,10 @@ public class ControllerInput : MonoBehaviour
     {
         trans = GetComponent<Transform>();
         rigid = GetComponent<Rigidbody>();
+
+        nowPoseName = new PoseName();
+        nowPoseName.left = "Idle";
+        nowPoseName.right = "Idle";
 
         speedForward = 2;
 
@@ -74,19 +86,82 @@ public class ControllerInput : MonoBehaviour
             Dash(1);
         }
 
-        if (this.nowPoseName == "Forward")
-        {
-            Debug.Log("if forward");
-            MovePlayer(1);
-        }
-
         // Real Code --------------------------------------------------
 
         GroundCheck();
 
-        this.nowPoseName = poseDetector.gameObject.GetComponent<PoseDetector>().currentPoseName();
+        //this.nowPoseName = poseDetector.gameObject.GetComponent<PoseDetector>().currentPoseName();
+        this.nowPoseName.left = poseDetector.gameObject.GetComponent<PoseDetector>().currentLeftPoseName();
+        this.nowPoseName.right = poseDetector.gameObject.GetComponent<PoseDetector>().currentRightPoseName();
 
-        switch(this.nowPoseName)
+        if (this.nowPoseName.left == "Forward")
+        {
+            Debug.Log("Forward");
+            MovePlayer(1);
+        }
+       if (this.nowPoseName.left == "Backward")
+        {
+            Debug.Log("Backward");
+            MovePlayer(-1);
+        }
+        if (this.nowPoseName.left == "LeftTurn")
+        {
+            Debug.Log("LeftTurn");
+            RotateHead(-1);
+        }
+        if (this.nowPoseName.left == "RightTurn")
+        {
+            Debug.Log("RightTurn");
+            RotateHead(1);
+        }
+        if (this.nowPoseName.right == "Jump")
+        {
+            Debug.Log("Jump");
+            Jump();
+        }
+        if (this.nowPoseName.left == "LeftForward")
+        {
+            Debug.Log("LeftForward");
+            RotateHead(-1);
+            MovePlayer(1);
+        }
+        if (this.nowPoseName.left == "RightForward")
+        {
+            Debug.Log("RightForward");
+            RotateHead(1);
+            MovePlayer(1);
+        }
+        if (this.nowPoseName.left == "LeftBackward")
+        {
+            Debug.Log("LeftBackward");
+            RotateHead(-1);
+            MovePlayer(-1);
+        }
+        if (this.nowPoseName.left == "RightBackward")
+        {
+            Debug.Log("RightBackward");
+            RotateHead(1);
+            MovePlayer(-1);
+        }
+        if (this.nowPoseName.right == "JumpForward")
+        {
+            Debug.Log("JumpForward");
+            MovePlayer(1);
+            Jump();
+        }
+        if (this.nowPoseName.right == "JumpBackorward")
+        {
+            Debug.Log("JumpBackorward");
+            MovePlayer(-1);
+            Jump();
+        }
+        if (this.nowPoseName.right == "ForwardDash")
+        {
+            Debug.Log("ForwardDash");
+            Dash(1);
+        }
+        /*
+        switch (this.nowPoseName)
         {
             case "Forward":
                 Debug.Log("Forward");
@@ -158,7 +233,7 @@ public class ControllerInput : MonoBehaviour
                 Debug.Log("Idle");
                 nowPoseName = "Idle";
                 break;
-        }
+        }*/
     }
 
     void MovePlayer(int toward)
@@ -208,7 +283,7 @@ public class ControllerInput : MonoBehaviour
         if (isGrounded)
         {
             Vector3 jumpVelocity = Vector3.up * Mathf.Sqrt(jumpForce * -Physics.gravity.y);
-
+            Debug.Log("start jump");
             rigid.AddForce(jumpVelocity, ForceMode.Impulse);
         }
     }
