@@ -35,14 +35,14 @@ public class PoseDetector : MonoBehaviour
     [SerializeField] bool isPalmUp_L = false;
     [SerializeField] bool isPalmUp_R = false;
     
-    [SerializeField] private GameObject handVisual_L;
-    [SerializeField] private GameObject handVisual_R;
+    [SerializeField] public GameObject handVisual_L;
+    [SerializeField] public GameObject handVisual_R;
 
     //bool isChanging_L;
     //bool isChanging_R;
 
-    public TMPro.TextMeshPro PoseName_L;
-    public TMPro.TextMeshPro PoseName_R;
+    public TMPro.TMP_Text PoseName_L;
+    public TMPro.TMP_Text PoseName_R;
 
     // Start is called before the first frame update
     void Start()
@@ -103,7 +103,7 @@ public class PoseDetector : MonoBehaviour
             Debug.Log("Ready");
         }
 
-        currentPose_L = Recognize('L');
+        //currentPose_L = Recognize('L');
         currentPose_R = Recognize('R');
 
         /*
