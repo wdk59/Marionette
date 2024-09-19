@@ -126,8 +126,8 @@ public class PlayerMovement : MonoBehaviour
     }
     public void Flash()
     {
-        Debug.Log("flash foward x y z: " + (fwdVec.position - transform.position).normalized);
-        Debug.Log("flash before x y z: " + transform.position);
+        //Debug.Log("flash foward x y z: " + (fwdVec.position - transform.position).normalized);
+        //Debug.Log("flash before x y z: " + transform.position);
         if (flashCnt > 0)
         {
             RaycastHit hit;
@@ -138,7 +138,7 @@ public class PlayerMovement : MonoBehaviour
                 flashCntTxt.text = "X " + flashCnt;
 
                 Vector3 newDir = (fwdVec.position - transform.position).normalized;
-                Debug.Log("flash dir x y z: " + newDir);
+                //Debug.Log("flash dir x y z: " + newDir);
                 transform.position = transform.position + newDir * 2;
                 //transform.Translate(newDir * 2);
                 //transform.position.Set(transform.position.x + newPos.x, 0, transform.position.z + newPos.z);

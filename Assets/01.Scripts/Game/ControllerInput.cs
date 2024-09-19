@@ -152,5 +152,10 @@ public class ControllerInput : MonoBehaviour
             Debug.Log("ForwardDash");
             pMove.Dash(1);
         }
+        if (this.nowPoseName.right == "Flash")
+        {
+            Debug.Log("ForwardDash");
+            pMove.Flash();
+        }
     }
 }
