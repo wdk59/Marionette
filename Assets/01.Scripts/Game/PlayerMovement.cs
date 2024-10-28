@@ -1,16 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
     private Rigidbody rigid;
 
     [SerializeField] private Transform fwdVec;
+    [SerializeField] private GameObject gameOverScreen;
+    public float playingTime;
+    public float playStartTime;
 
     // Player State
     private int playerHP = 5;
     [SerializeField] private TMPro.TMP_Text hpTxt;
+    private bool haveKey = false;
     private int coinCnt = 0;
     [SerializeField] private TMPro.TMP_Text coinCntTxt;
     private int flashCnt = 0;
@@ -46,7 +51,16 @@ public class PlayerMovement : MonoBehaviour
     {
         rigid = GetComponent<Rigidbody>();
 
-        flashCnt = 100;
+        playingTime = 0.0f;
+        playStartTime = 0.0f;
+
+        playerHP = 5;
+        haveKey = false;
+        coinCnt = 0;
+        flashCnt = 0;
+
+        isImmortal = false;
+        float immortalTime = 0f;
 
         speedForward = 2;
         dirZ = 0f;
@@ -76,6 +90,11 @@ public class PlayerMovement : MonoBehaviour
 
         hpTxt.text = "X " + playerHP;
         Debug.Log("HP: " + playerHP);
+
+        if (playerHP <= 0)
+        {
+            PlayerDead();
+        }
     }
     IEnumerator ImmortalTimer()
     {
@@ -89,6 +108,38 @@ public class PlayerMovement : MonoBehaviour
         }
 
         isImmortal = false;
+    }
+
+    private void PlayerDead()
+    {
+        gameOverScreen.SetActive(true);
+
+        StartCoroutine("DyingMessage");
+    }
+    IEnumerator DyingMessage()
+    {
+        float respawnCool = 3.0f;
+        while (respawnCool > 0)
+        {
+            respawnCool -= Time.deltaTime;
+
+            yield return new WaitForFixedUpdate();
+        }
+
+        RestartGame();
+    }
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene("Game");
+    }
+
+    public void GetKey()
+    {
+        Debug.Log("Get Key");
+        haveKey = true;
+        // 소리
+        // UI
     }
 
     public void GetHP()
@@ -126,6 +177,7 @@ public class PlayerMovement : MonoBehaviour
     }
     public void Flash()
     {
+        Debug.Log("Flash()");
         //Debug.Log("flash foward x y z: " + (fwdVec.position - transform.position).normalized);
         //Debug.Log("flash before x y z: " + transform.position);
         if (flashCnt > 0)

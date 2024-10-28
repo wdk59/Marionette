@@ -6,11 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/00.Scenes/Test2_CaptureTransform.unity
-    guid: 9548a61ea12a45d41b41712edd5218eb
-  - enabled: 1
-    path: Assets/00.Scenes/Test3_Compare_Accuracy.unity
-    guid: e18c6a787ac5ff949b6a2bb49372ae67
+    path: Assets/00.Scenes/Game.unity
+    guid: 8d10635765ce9564cb6421a50ed10d23
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: fba733c63a1c55247b219ab4991627f0, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: fa90b9c8b28518c47a007ee39541f214, type: 2}
