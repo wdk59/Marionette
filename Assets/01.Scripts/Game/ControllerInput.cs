@@ -147,14 +147,14 @@ public class ControllerInput : MonoBehaviour
             pMove.MovePlayer(-1);
             pMove.Jump();
         }
-        if (this.nowPoseName.right == "ForwardDash")
+        if (this.nowPoseName.right == "DashSkill")
         {
-            Debug.Log("ForwardDash");
+            Debug.Log("DashSkill");
             pMove.Dash(1);
         }
         if (this.nowPoseName.right == "Flash")
         {
-            Debug.Log("ForwardDash");
+            Debug.Log("Flash");
             pMove.Flash();
         }
     }

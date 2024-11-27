@@ -33,8 +33,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private bool canJump;
     [SerializeField] private float jumpCoolTime = 0f;
     public float jumpForce = 5f;
-    private LayerMask groundLayer;
-    private float groundCheckDistance = 10f;
+    //private LayerMask groundLayer;
+    //private float groundCheckDistance = 10f;
     public bool isGrounded = true;
 
     // Dash
@@ -69,7 +69,7 @@ public class PlayerMovement : MonoBehaviour
         canJump = true;
         jumpCoolTime = 0f;
         jumpForce = 5f;
-        groundCheckDistance = 10f;
+        //groundCheckDistance = 10f;
 
         canDash = true;
         dashCoolTime = 0f;

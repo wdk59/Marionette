@@ -1753,9 +1753,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86bd9b2e4cf167a4bbcc0ea0be0cbf01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poseDetector: {fileID: 1954636406}
-  nowPoseName: Idle
-  speedForward: 12
+  poseDetector: {fileID: 1954636404}
 --- !u!1 &1357019354
 GameObject:
   m_ObjectHideFlags: 0
