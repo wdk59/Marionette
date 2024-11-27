@@ -244,9 +244,7 @@ public class PlayerMovement : MonoBehaviour
         dirZ = toward;  // Forward or Backward
 
         Vector3 moveDir = new Vector3(0, 0, dirZ * speedForward);
-
         transform.Translate(moveDir * Time.smoothDeltaTime);
-        //rigid.velocity = moveDir;
     }
 
     public void RotateHead(int side)

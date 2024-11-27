@@ -34,7 +34,10 @@ public class PoseDetector : MonoBehaviour
 
     [SerializeField] bool isPalmUp_L = false;
     [SerializeField] bool isPalmUp_R = false;
-    
+
+    [SerializeField] private GameObject PalmBaseVec_L;
+    [SerializeField] private GameObject PalmBaseVec_R;
+
     [SerializeField] public GameObject handVisual_L;
     [SerializeField] public GameObject handVisual_R;
 
@@ -67,8 +70,9 @@ public class PoseDetector : MonoBehaviour
         Debug.Log("Left CurrentPose: " + currentPose_L.name);
         Debug.Log("Right CurrentPose: " + currentPose_R.name);
 
-        // Palm Face
-        if (handVisual_L.transform.rotation.x >= -0.45 && handVisual_L.transform.rotation.x <= 0.45)
+        // Palm Up
+        //if (handVisual_L.transform.rotation.x >= -0.5 && handVisual_L.transform.rotation.x <= 0.5)
+        if (PalmBaseVec_L.gameObject.transform.position.y - handVisual_L.gameObject.transform.position.y > 0)
         {
             isPalmUp_L = true;
             Debug.Log("up: " + handVisual_L.transform.rotation.x);
@@ -77,14 +81,15 @@ public class PoseDetector : MonoBehaviour
             isPalmUp_L = false;
             Debug.Log("down: " + handVisual_L.transform.rotation.x);
         }
-        if (handVisual_R.transform.rotation.x >= -0.45 && handVisual_R.transform.rotation.x <= 0.45)
+        //if (handVisual_R.transform.rotation.x >= -0.5 && handVisual_R.transform.rotation.x <= 0.5)
+        if (PalmBaseVec_R.gameObject.transform.position.y - handVisual_R.gameObject.transform.position.y > 0)
         {
-            isPalmUp_R = false;
+            isPalmUp_R = true;
             Debug.Log("up: " + handVisual_R.transform.rotation.x);
         }
         else
         {
-            isPalmUp_R = true;
+            isPalmUp_R = false;
             Debug.Log("down: " + handVisual_R.transform.rotation.x);
         }
 
@@ -103,7 +108,7 @@ public class PoseDetector : MonoBehaviour
             Debug.Log("Ready");
         }
 
-        //currentPose_L = Recognize('L');
+        currentPose_L = Recognize('L');
         currentPose_R = Recognize('R');
 
         /*
